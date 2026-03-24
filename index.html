@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lazarus Chan - Resources</title>
+    <title>Lazarus Chan - Workshops</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,7 +13,7 @@
     <header class="bg-black text-white py-12 px-6 shadow-md">
         <div class="max-w-5xl mx-auto">
             <p class="text-gray-400 text-sm font-semibold tracking-wider uppercase mb-2">Lazarus Chan</p>
-            <h1 class="text-3xl md:text-5xl font-bold mb-4">Resources & Downloads</h1>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">Workshop Files</h1>
             <p class="text-lg text-gray-400 max-w-2xl">Starter packages and project files for interactive media, creative coding, and screen-based experiments.</p>
         </div>
     </header>
@@ -21,39 +21,34 @@
     <!-- Main Content -->
     <main class="flex-grow max-w-5xl mx-auto w-full p-6 py-10 space-y-8">
 
-        <!-- Software Requirements Section -->
-        <section class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2 flex items-center gap-2"><i class="fas fa-laptop-code text-gray-600"></i> Software Requirements</h3>
-            <ul class="space-y-3 text-sm text-gray-700">
-                <li class="flex items-center gap-2"><i class="fas fa-check text-black"></i> <strong>TouchDesigner</strong> (Non-Commercial or Educational License) — Primary visual programming environment</li>
-                <li class="flex items-center gap-2"><i class="fas fa-check text-black"></i> <strong>Wekinator</strong> — For machine learning and interactive systems via OSC</li>
-                <li class="flex items-center gap-2"><i class="fas fa-check text-black"></i> <strong>Arduino IDE</strong> — For physical computing and sensor inputs</li>
-                <li class="flex items-center gap-2"><i class="fas fa-check text-black"></i> <strong>Processing</strong> — For creative coding and bridging serial data</li>
-            </ul>
-        </section>
-
-        <!-- Repository Section -->
+        <!-- Live Repository Section -->
         <section class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 border-t-4 border-t-black">
             <div class="flex items-start gap-4">
                 <div class="bg-gray-100 p-4 rounded-lg text-black hidden sm:block">
                     <i class="fab fa-github fa-2x"></i>
                 </div>
                 <div class="w-full">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-1 gap-4">
                         <div>
-                            <span class="inline-block px-2 py-1 bg-gray-200 text-gray-800 text-xs font-bold rounded mb-2">Repository (Live Update)</span>
-                            <h2 class="text-xl font-bold text-gray-800">Interactive Media Starter Packages</h2>
-                            <p class="text-gray-600 text-sm leading-relaxed mt-1">Download starter packages and project files directly from GitHub. These files are fetched dynamically to ensure you always have the latest versions.</p>
+                            <span class="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs font-bold rounded mb-2">
+                                <i class="fas fa-circle text-green-500 text-[8px] mr-1 animate-pulse"></i> Live from GitHub
+                            </span>
+                            <h2 class="text-xl font-bold text-gray-800">Lazaruschan/Workshops</h2>
+                            <p class="text-gray-500 text-sm mt-1">Files are fetched in real-time from the repository. Always up to date.</p>
                         </div>
-                        <a href="https://github.com/Lazaruschan/SHDS4697-SCREEN-BASED-MEDIA-DESIGN" target="_blank" class="shrink-0 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 px-4 py-2 rounded font-medium text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
+                        <a href="https://github.com/Lazaruschan/Workshops" target="_blank" class="shrink-0 bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 px-4 py-2 rounded font-medium text-sm transition-colors flex items-center justify-center gap-2 shadow-sm">
                             <i class="fab fa-github"></i> View on GitHub
                         </a>
                     </div>
 
-                    <!-- Dynamically populated repository files via GitHub API -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full" id="repo-files-container">
-                        <div class="col-span-full py-4 text-center text-gray-500">
-                            <i class="fas fa-spinner fa-spin mr-2"></i> Fetching latest files from GitHub...
+                    <!-- Last updated timestamp -->
+                    <p class="text-xs text-gray-400 mb-4" id="last-updated"></p>
+
+                    <!-- File listing container -->
+                    <div id="repo-files-container">
+                        <div class="py-8 text-center text-gray-400">
+                            <i class="fas fa-spinner fa-spin fa-lg mb-2"></i>
+                            <p class="text-sm">Fetching latest files from GitHub...</p>
                         </div>
                     </div>
                 </div>
@@ -64,56 +59,145 @@
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-400 py-8 text-center text-sm mt-auto">
-        <p>© 2025 Lazarus Chan</p>
+        <p>&copy; 2025 Lazarus Chan</p>
     </footer>
 
     <script>
-        async function fetchRepoFiles() {
+        const REPO_API = 'https://api.github.com/repos/Lazaruschan/Workshops/contents/';
+        const REPO_COMMITS = 'https://api.github.com/repos/Lazaruschan/Workshops/commits?per_page=1';
+
+        const iconMap = {
+            'html': 'fa-code text-orange-400',
+            'css': 'fa-palette text-blue-400',
+            'js': 'fa-js text-yellow-500',
+            'py': 'fa-python text-blue-500',
+            'zip': 'fa-file-zipper text-amber-600',
+            'rar': 'fa-file-zipper text-amber-600',
+            'pdf': 'fa-file-pdf text-red-500',
+            'md': 'fa-book text-gray-500',
+            'txt': 'fa-file-lines text-gray-400',
+            'json': 'fa-brackets-curly text-green-500',
+            'png': 'fa-image text-purple-400',
+            'jpg': 'fa-image text-purple-400',
+            'jpeg': 'fa-image text-purple-400',
+            'gif': 'fa-image text-purple-400',
+            'toe': 'fa-cube text-indigo-500',
+            'tox': 'fa-cube text-indigo-500',
+            'ino': 'fa-microchip text-teal-500',
+            'pde': 'fa-code text-blue-400',
+        };
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            return iconMap[ext] || 'fa-file text-gray-400';
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(1) + ' MB';
+        }
+
+        function timeAgo(dateStr) {
+            const now = new Date();
+            const date = new Date(dateStr);
+            const seconds = Math.floor((now - date) / 1000);
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return minutes + 'm ago';
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return hours + 'h ago';
+            const days = Math.floor(hours / 24);
+            if (days < 30) return days + 'd ago';
+            return date.toLocaleDateString();
+        }
+
+        async function fetchRepoFiles(path = '') {
             const container = document.getElementById('repo-files-container');
 
             try {
-                const response = await fetch('https://api.github.com/repos/Lazaruschan/SHDS4697-SCREEN-BASED-MEDIA-DESIGN/contents/');
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch from GitHub API');
+                // Fetch last commit info
+                const commitRes = await fetch(REPO_COMMITS);
+                if (commitRes.ok) {
+                    const commits = await commitRes.json();
+                    if (commits.length > 0) {
+                        const lastDate = commits[0].commit.committer.date;
+                        document.getElementById('last-updated').innerHTML =
+                            `<i class="fas fa-clock mr-1"></i> Last updated: ${timeAgo(lastDate)} &mdash; <span class="text-gray-500">${commits[0].commit.message}</span>`;
+                    }
                 }
+
+                // Fetch contents
+                const response = await fetch(REPO_API + path);
+                if (!response.ok) throw new Error('GitHub API error');
 
                 const data = await response.json();
                 container.innerHTML = '';
 
+                // Separate folders and files
+                const folders = data.filter(item => item.type === 'dir');
                 const files = data.filter(item => item.type === 'file' && item.name.toLowerCase() !== 'index.html');
 
-                if (files.length === 0) {
-                    container.innerHTML = '<div class="col-span-full py-4 text-gray-500">No downloadable files found in the repository.</div>';
+                if (folders.length === 0 && files.length === 0) {
+                    container.innerHTML = `
+                        <div class="py-8 text-center text-gray-400">
+                            <i class="fas fa-folder-open fa-2x mb-2"></i>
+                            <p class="text-sm">No downloadable files found yet. Check back soon.</p>
+                        </div>`;
                     return;
                 }
 
-                files.forEach(file => {
-                    const isZip = file.name.endsWith('.zip');
-                    const icon = isZip ? 'fa-file-archive' : 'fa-file-code';
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3';
 
-                    const a = document.createElement('a');
-                    a.href = file.download_url;
-                    a.target = "_blank";
-                    a.className = "bg-black hover:bg-gray-800 text-white px-4 py-3 rounded font-medium text-sm transition-colors flex items-center justify-between shadow-sm group";
-                    a.innerHTML = `
-                        <span class="flex items-center gap-2 truncate pr-2" title="${file.name}">
-                            <i class="fas ${icon} text-gray-400 group-hover:text-white transition-colors"></i>
-                            <span class="truncate">${file.name}</span>
+                // Render folders
+                folders.forEach(folder => {
+                    const el = document.createElement('a');
+                    el.href = folder.html_url;
+                    el.target = '_blank';
+                    el.className = 'bg-gray-50 hover:bg-gray-100 border border-gray-200 px-4 py-3 rounded-lg text-sm transition-colors flex items-center justify-between group cursor-pointer';
+                    el.innerHTML = `
+                        <span class="flex items-center gap-3 truncate">
+                            <i class="fas fa-folder text-amber-400 text-base"></i>
+                            <span class="truncate font-medium text-gray-700 group-hover:text-black">${folder.name}</span>
                         </span>
-                        <i class="fas fa-download text-gray-400 group-hover:text-white transition-colors"></i>
+                        <i class="fas fa-arrow-right text-gray-300 group-hover:text-gray-600 transition-colors text-xs"></i>
                     `;
-                    container.appendChild(a);
+                    grid.appendChild(el);
                 });
 
+                // Render files
+                files.forEach(file => {
+                    const el = document.createElement('a');
+                    el.href = file.download_url;
+                    el.target = '_blank';
+                    el.className = 'bg-black hover:bg-gray-800 text-white px-4 py-3 rounded-lg text-sm transition-colors flex items-center justify-between group';
+                    el.innerHTML = `
+                        <span class="flex items-center gap-3 truncate pr-2" title="${file.name}">
+                            <i class="fas ${getFileIcon(file.name)} text-base"></i>
+                            <span class="truncate">${file.name}</span>
+                        </span>
+                        <span class="flex items-center gap-3 shrink-0">
+                            <span class="text-gray-500 text-xs hidden sm:inline">${formatSize(file.size)}</span>
+                            <i class="fas fa-download text-gray-500 group-hover:text-white transition-colors"></i>
+                        </span>
+                    `;
+                    grid.appendChild(el);
+                });
+
+                container.appendChild(grid);
+
             } catch (error) {
-                console.error('Error fetching repo files:', error);
+                console.error('Error:', error);
                 container.innerHTML = `
-                    <div class="col-span-full py-4 text-red-500 flex items-center gap-2">
-                        <i class="fas fa-exclamation-circle"></i>
-                        Failed to load latest files. Please view them directly on GitHub.
-                    </div>
-                `;
+                    <div class="py-8 text-center">
+                        <div class="text-red-400 mb-3"><i class="fas fa-exclamation-triangle fa-2x"></i></div>
+                        <p class="text-sm text-gray-600 mb-3">Could not fetch files from GitHub.</p>
+                        <a href="https://github.com/Lazaruschan/Workshops" target="_blank"
+                           class="inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded text-sm font-medium hover:bg-gray-800 transition-colors">
+                            <i class="fab fa-github"></i> Browse on GitHub
+                        </a>
+                    </div>`;
             }
         }
 
